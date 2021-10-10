@@ -43,11 +43,8 @@ class TreeViewFilterWindow(Gtk.Window):
         label_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
         label_id = Gtk.Label(label="ID")
-        # label_id.set_width_chars(5)
         label_name = Gtk.Label(label="Name")
-        # label_id.set_width_chars(5)
         label_surname = Gtk.Label(label="Surname")
-        # label_id.set_width_chars(5)
 
         self.entry_id = Gtk.Entry()
         self.entry_name = Gtk.Entry()
@@ -66,17 +63,17 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach(self.button_new_reg, 0, 2, 2, 2)
 
         self.filter_text = Gtk.SearchEntry()
+        self.filter_text.connect("search-changed", self.on_filter_text_changed)
         self.grid.attach(self.filter_text, 0, 4, 6, 1)
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
         for people_ref in read_employees():
             self.people_liststore.append(list(people_ref))
-        self.current_filter_str = None
 
         # Creating the filter, feeding it with the liststore model
         self.people_filter = self.people_liststore.filter_new()
-        # setting the filter function, note that we're not using the
+        # setting the filter function
         self.people_filter.set_visible_func(self.people_filter_func)
 
         # creating the treeview, making it use the filter as a model, and adding the columns
@@ -91,7 +88,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.reg_employee = Gtk.Button(label="Register employee")
         self.reg_employee.connect("clicked", self.on_reg_employee_button_clicked)
 
-        # setting up the layout, putting the treeview in a scrollwindow, and the buttons in a row
+        # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
         self.grid.attach(self.scrollable_treelist, 0, 5, 8, 20)
@@ -102,14 +99,16 @@ class TreeViewFilterWindow(Gtk.Window):
         self.show_all()
 
     def people_filter_func(self, model, iter, data):
-        """Tests if the language in the row is the one in the filter"""
-        if (
-                self.current_filter_str is None
-                or self.current_filter_str == "None"
-        ):
+
+        current_filter_str = self.filter_text.get_text().strip()
+        if (current_filter_str == ""):
             return True
         else:
-            return model[iter][2] == self.current_filter_str
+            text =  model[iter][0] +  model[iter][1] +  model[iter][2]
+            return text.find(current_filter_str) > -1
+
+    def on_filter_text_changed(self,widget):
+        self.people_filter.refilter()
 
     def info_msg(self, message):
         dialog = Gtk.MessageDialog(
@@ -144,11 +143,6 @@ class TreeViewFilterWindow(Gtk.Window):
             surname = model[treeiter][2]
             write_registered(id, name, surname)
             self.info_msg(f"Registered entry of: {name} {surname}")
-
-        #self.current_filter_str = widget.get_label()
-        #print("%s language selected!" % self.current_filter_str)
-        # we update the filter, which updates in turn the view
-        #self.people_filter.refilter()
 
     def on_new_entry_button_clicked(self, widget):
 
