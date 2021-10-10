@@ -145,6 +145,12 @@ class TreeViewFilterWindow(Gtk.Window):
         dialog.run()
         dialog.destroy()
 
+    def reset_input(self):
+        self.filter_text.set_text("")
+        self.entry_id.set_text("")
+        self.entry_name.set_text("")
+        self.entry_surname.set_text("")
+
     def on_reg_employee_button_clicked(self, widget):
         selection = self.treeview.get_selection()
         model, treeiter = selection.get_selected()
@@ -161,6 +167,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             write_registered(id, name, surname, str(mask_num))
             self.info_msg(f"Registered entry of: {name} {surname}")
+            self.reset_input()
 
     def on_new_entry_button_clicked(self, widget):
 
@@ -177,9 +184,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             write_registered(id, name, surname, str(mask_num))
             self.info_msg(f"Registered entry of: {name} {surname}")
-            self.entry_id.set_text("")
-            self.entry_name.set_text("")
-            self.entry_surname.set_text("")
+            self.reset_input()
 
     def run_mask_dialog(self):
         dialog = DialogMasks(self)
