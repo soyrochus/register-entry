@@ -63,33 +63,30 @@ class TreeViewFilterWindow(Gtk.Window):
 
         label_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
-        label_id = Gtk.Label("ID")
+        label_id = Gtk.Label(label="ID")
         # label_id.set_width_chars(5)
-        label_id = Gtk.Label("ID")
+        label_name = Gtk.Label(label="Name")
         # label_id.set_width_chars(5)
-        label_name = Gtk.Label("Name")
-        # label_id.set_width_chars(5)
-        label_surname = Gtk.Label("Surname")
+        label_surname = Gtk.Label(label="Surname")
         # label_id.set_width_chars(5)
 
-        label_box.pack_start(label_id, False, False, 0)
-        label_box.pack_start(label_name, False, False, 0)
-        label_box.pack_start(label_surname, False, False, 0)
-        self.grid.attach(label_box, 0, 0, 8, 1)
+        self.entry_id = Gtk.Entry()
+        self.entry_name = Gtk.Entry()
+        self.entry_surname = Gtk.Entry()
 
-        entry_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        self.grid.attach(label_id, 0, 0, 2, 1)
+        self.grid.attach_next_to(label_name,label_id, Gtk.PositionType.RIGHT, 2, 1)
+        self.grid.attach_next_to(label_surname,label_name, Gtk.PositionType.RIGHT, 2, 1)
 
-        entry_id = Gtk.Entry()
-        entry_name = Gtk.Entry()
-        entry_surname = Gtk.Entry()
+        self.grid.attach_next_to(self.entry_id,label_id, Gtk.PositionType.BOTTOM, 2, 1)
+        self.grid.attach_next_to(self.entry_name,self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
+        self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 4, 1)
 
-        entry_box.pack_start(entry_id, False, False, 0)
-        entry_box.pack_start(entry_name, False, False, 0)
-        entry_box.pack_start(entry_surname, False, False, 0)
-        self.grid.attach(entry_box, 0, 1, 8, 1)
+        self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
+        self.grid.attach(self.button_new_reg, 0, 2, 2, 2)
 
         self.filter_text = Gtk.SearchEntry()
-        self.grid.attach(self.filter_text, 0, 2, 6, 1)
+        self.grid.attach(self.filter_text, 0, 4, 6, 1)
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
@@ -111,26 +108,17 @@ class TreeViewFilterWindow(Gtk.Window):
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             self.treeview.append_column(column)
 
-        # creating buttons to filter by programming language, and setting up their events
-        self.buttons = list()
-        for prog_language in ["Java", "C", "C++", "Python", "None"]:
-            button = Gtk.Button(label=prog_language)
-            self.buttons.append(button)
-            button.connect("clicked", self.on_selection_button_clicked)
+        self.reg_employee = Gtk.Button(label="Register employee")
+        # button.connect("clicked", self.on_selection_button_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow, and the buttons in a row
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 3, 8, 20)
-        self.grid.attach_next_to(
-            self.buttons[0], self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1
-        )
-        for i, button in enumerate(self.buttons[1:]):
-            self.grid.attach_next_to(
-                button, self.buttons[i], Gtk.PositionType.RIGHT, 1, 1
-            )
-        self.scrollable_treelist.add(self.treeview)
+        self.grid.attach(self.scrollable_treelist, 0, 5, 8, 20)
+        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 2, 2
+)
 
+        self.scrollable_treelist.add(self.treeview)
         self.show_all()
 
     def people_filter_func(self, model, iter, data):
