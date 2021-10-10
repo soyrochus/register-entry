@@ -163,6 +163,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_mask_dialog()
             if mask_num == Gtk.ResponseType.CANCEL:
+                self.reset_input()
                 return
 
             write_registered(id, name, surname, str(mask_num))
@@ -180,6 +181,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_mask_dialog()
             if mask_num == Gtk.ResponseType.CANCEL:
+                self.reset_input()
                 return
 
             write_registered(id, name, surname, str(mask_num))
