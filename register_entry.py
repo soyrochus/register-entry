@@ -89,7 +89,7 @@ class TreeViewFilterWindow(Gtk.Window):
             self.treeview.append_column(column)
 
         self.reg_employee = Gtk.Button(label="Register employee")
-        # button.connect("clicked", self.on_selection_button_clicked)
+        self.reg_employee.connect("clicked", self.on_reg_employee_button_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow, and the buttons in a row
         self.scrollable_treelist = Gtk.ScrolledWindow()
@@ -133,13 +133,22 @@ class TreeViewFilterWindow(Gtk.Window):
         dialog.run()
         dialog.destroy()
 
-    def on_selection_button_clicked(self, widget):
-        """Called on any of the button clicks"""
-        # we set the current language filter to the button's label
-        self.current_filter_str = widget.get_label()
-        print("%s language selected!" % self.current_filter_str)
+    def on_reg_employee_button_clicked(self, widget):
+        selection = self.treeview.get_selection()
+        model, treeiter = selection.get_selected()
+        if treeiter is None:
+            self.error_msg("Employee needs to be selected")
+        else:
+            id = model[treeiter][0]
+            name = model[treeiter][1]
+            surname = model[treeiter][2]
+            write_registered(id, name, surname)
+            self.info_msg(f"Registered entry of: {name} {surname}")
+
+        #self.current_filter_str = widget.get_label()
+        #print("%s language selected!" % self.current_filter_str)
         # we update the filter, which updates in turn the view
-        self.people_filter.refilter()
+        #self.people_filter.refilter()
 
     def on_new_entry_button_clicked(self, widget):
 
@@ -150,7 +159,7 @@ class TreeViewFilterWindow(Gtk.Window):
             self.error_msg("All fields need to be filled")
         else:
             write_registered(id, name, surname)
-            self.info_msg(f"Info Message! {id} {name} {surname}")
+            self.info_msg(f"Registered entry of: {name} {surname}")
 
 
 
