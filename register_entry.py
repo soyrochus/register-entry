@@ -17,17 +17,30 @@ def read_employees():
 
     return people_list[1:]
 
-def write_registered(id, name,surname ):
+def write_registered(id, name,surname, mask_num):
     xlsx_path = os.path.join(os.getcwd(),"registered.xlsx")
-    #print(xlsx_path)
+
     wb = load_workbook(xlsx_path)
     # Select First Worksheet
     ws = wb.worksheets[0]
 
     # Append Row Values
-    ws.append([datetime.now(), id, name, surname])
+    ws.append([datetime.now(), id, name, surname, mask_num])
 
     wb.save(xlsx_path)
+
+class DialogMasks(Gtk.Dialog):
+    def __init__(self, parent):
+        super().__init__(title="Select Mask number (2 max.)", transient_for=parent, flags=0)
+        self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,"None (0)", 0, "1 mask", 1, "2 masks", 2)
+
+        self.set_default_size(150, 100)
+
+        label = Gtk.Label(label="Please select how many masks have been taken")
+
+        box = self.get_content_area()
+        box.add(label)
+        self.show_all()
 
 class TreeViewFilterWindow(Gtk.Window):
     def __init__(self):
@@ -141,7 +154,12 @@ class TreeViewFilterWindow(Gtk.Window):
             id = model[treeiter][0]
             name = model[treeiter][1]
             surname = model[treeiter][2]
-            write_registered(id, name, surname)
+
+            mask_num = self.run_mask_dialog()
+            if mask_num == Gtk.ResponseType.CANCEL:
+                return
+
+            write_registered(id, name, surname, str(mask_num))
             self.info_msg(f"Registered entry of: {name} {surname}")
 
     def on_new_entry_button_clicked(self, widget):
@@ -152,10 +170,25 @@ class TreeViewFilterWindow(Gtk.Window):
         if (id == "" or name == "" or surname == ""):
             self.error_msg("All fields need to be filled")
         else:
-            write_registered(id, name, surname)
+
+            mask_num = self.run_mask_dialog()
+            if mask_num == Gtk.ResponseType.CANCEL:
+                return
+
+            write_registered(id, name, surname, str(mask_num))
             self.info_msg(f"Registered entry of: {name} {surname}")
 
+    def run_mask_dialog(self):
+        dialog = DialogMasks(self)
+        response = dialog.run()
 
+        #if response == Gtk.ResponseType.OK:
+        #   print("The OK button was clicked")
+        #elif response == Gtk.ResponseType.CANCEL:
+        #    print("The Cancel button was clicked")
+
+        dialog.destroy()
+        return response
 
 win = TreeViewFilterWindow()
 win.connect("destroy", Gtk.main_quit)
