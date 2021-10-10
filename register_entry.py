@@ -1,54 +1,33 @@
 #!/usr/bin/env python3
 
 import gi
+import os, os.path
+from datetime import datetime
+from openpyxl import load_workbook
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-people_list = [
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python"),
-    ("X7286364X", "Iwan Rochus", "van der Kleijn"),
-    ("A1234567", "Marta", "Martinez de los Santos"),
-    ("B456432", "Inma", "Pastor"),
-    ("X1234X", "Pytha", "Python")
+def read_employees():
+    xlsx_path = os.path.join(os.getcwd(),"employees.xlsx")
+    print(xlsx_path)
+    wb = load_workbook(xlsx_path)
+    ws = wb.worksheets[0]
+    people_list  = [[str(e[0]),str(e[1]),str(e[2])] for e in ws.values if e != (None, None, None)]
 
-]
+    return people_list[1:]
 
+def write_registered(id, name,surname ):
+    xlsx_path = os.path.join(os.getcwd(),"registered.xlsx")
+    #print(xlsx_path)
+    wb = load_workbook(xlsx_path)
+    # Select First Worksheet
+    ws = wb.worksheets[0]
+
+    # Append Row Values
+    ws.append([datetime.now(), id, name, surname])
+
+    wb.save(xlsx_path)
 
 class TreeViewFilterWindow(Gtk.Window):
     def __init__(self):
@@ -83,6 +62,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 4, 1)
 
         self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
+        self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         self.grid.attach(self.button_new_reg, 0, 2, 2, 2)
 
         self.filter_text = Gtk.SearchEntry()
@@ -90,7 +70,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
-        for people_ref in people_list:
+        for people_ref in read_employees():
             self.people_liststore.append(list(people_ref))
         self.current_filter_str = None
 
@@ -131,6 +111,28 @@ class TreeViewFilterWindow(Gtk.Window):
         else:
             return model[iter][2] == self.current_filter_str
 
+    def info_msg(self, message):
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            flags=0,
+            message_type=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.OK,
+            text=message,
+        )
+        dialog.run()
+        dialog.destroy()
+
+    def error_msg(self, message):
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            flags=0,
+            message_type=Gtk.MessageType.ERROR,
+            buttons=Gtk.ButtonsType.CANCEL,
+            text=message,
+        )
+        dialog.run()
+        dialog.destroy()
+
     def on_selection_button_clicked(self, widget):
         """Called on any of the button clicks"""
         # we set the current language filter to the button's label
@@ -138,6 +140,18 @@ class TreeViewFilterWindow(Gtk.Window):
         print("%s language selected!" % self.current_filter_str)
         # we update the filter, which updates in turn the view
         self.people_filter.refilter()
+
+    def on_new_entry_button_clicked(self, widget):
+
+        id = self.entry_id.get_text().strip()
+        name = self.entry_name.get_text().strip()
+        surname = self.entry_surname.get_text().strip()
+        if (id == "" or name == "" or surname == ""):
+            self.error_msg("All fields need to be filled")
+        else:
+            write_registered(id, name, surname)
+            self.info_msg(f"Info Message! {id} {name} {surname}")
+
 
 
 win = TreeViewFilterWindow()
