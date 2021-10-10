@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Register entry is a Python (version 3) GTK3 program to register entry into buildings, offices etc (due to COVID)
+# Copyright (c) 2021, Iwan van der Kleijn (iwanvanderkleijn@gmail.com)
+# This is Free Software (BSD). See the file LICENSE.txt
 
 import gi
 import os, os.path
@@ -59,9 +62,9 @@ class TreeViewFilterWindow(Gtk.Window):
         label_name = Gtk.Label(label="Name")
         label_surname = Gtk.Label(label="Surname")
 
-        self.entry_id = Gtk.Entry()
-        self.entry_name = Gtk.Entry()
-        self.entry_surname = Gtk.Entry()
+        self.entry_id = Gtk.Entry(text="", placeholder_text="i.e NIF, NIE, Passport nr, etc.")
+        self.entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
+        self.entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
 
         self.grid.attach(label_id, 0, 0, 2, 1)
         self.grid.attach_next_to(label_name,label_id, Gtk.PositionType.RIGHT, 2, 1)
@@ -75,7 +78,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         self.grid.attach(self.button_new_reg, 0, 2, 2, 2)
 
-        self.filter_text = Gtk.SearchEntry()
+        self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of employees (down)")
         self.filter_text.connect("search-changed", self.on_filter_text_changed)
         self.grid.attach(self.filter_text, 0, 4, 6, 1)
 
@@ -91,22 +94,19 @@ class TreeViewFilterWindow(Gtk.Window):
 
         # creating the treeview, making it use the filter as a model, and adding the columns
         self.treeview = Gtk.TreeView(model=self.people_filter)
-        for i, column_title in enumerate(
-                ["ID", "First name", "Surname"]
-        ):
+        for i, column_title in enumerate(["ID", "First name", "Surname"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             self.treeview.append_column(column)
 
-        self.reg_employee = Gtk.Button(label="Register employee")
+        self.reg_employee = Gtk.Button(label="Entree of Employee")
         self.reg_employee.connect("clicked", self.on_reg_employee_button_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
         self.grid.attach(self.scrollable_treelist, 0, 5, 8, 20)
-        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 2, 2
-)
+        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 2, 2)
 
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
@@ -177,15 +177,13 @@ class TreeViewFilterWindow(Gtk.Window):
 
             write_registered(id, name, surname, str(mask_num))
             self.info_msg(f"Registered entry of: {name} {surname}")
+            self.entry_id.set_text("")
+            self.entry_name.set_text("")
+            self.entry_surname.set_text("")
 
     def run_mask_dialog(self):
         dialog = DialogMasks(self)
         response = dialog.run()
-
-        #if response == Gtk.ResponseType.OK:
-        #   print("The OK button was clicked")
-        #elif response == Gtk.ResponseType.CANCEL:
-        #    print("The Cancel button was clicked")
 
         dialog.destroy()
         return response
