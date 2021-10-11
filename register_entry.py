@@ -11,6 +11,13 @@ from openpyxl import load_workbook
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+import platform
+global osk #onscreen keyboard
+if platform.system() == "Windows":
+    osk = "osk"
+else: #only on Linux and must be installed. Will fail on MacOSX 
+    osk = "onboard"
+
 def read_employees():
     xlsx_path = os.path.join(os.getcwd(),"employees.xlsx")
     #print(xlsx_path)
@@ -175,7 +182,8 @@ class TreeViewFilterWindow(Gtk.Window):
             self.reset_input()
 
     def on_screen_keyboard(self, widget):
-        os.popen("osk")
+        global osk
+        os.popen(osk)
 
     def on_new_entry_button_clicked(self, widget):
 
