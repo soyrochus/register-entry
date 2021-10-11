@@ -13,7 +13,7 @@ from gi.repository import Gtk
 
 def read_employees():
     xlsx_path = os.path.join(os.getcwd(),"employees.xlsx")
-    print(xlsx_path)
+    #print(xlsx_path)
     wb = load_workbook(xlsx_path)
     ws = wb.worksheets[0]
     people_list  = [[str(e[0]),str(e[1]),str(e[2])] for e in ws.values if e != (None, None, None)]
@@ -22,7 +22,7 @@ def read_employees():
 
 def write_registered(id, name,surname, mask_num, employee):
     xlsx_path = os.path.join(os.getcwd(),"registered.xlsx")
-
+    #print(xlsx_path)
     wb = load_workbook(xlsx_path)
     # Select First Worksheet
     ws = wb.worksheets[0]
@@ -74,9 +74,16 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach_next_to(self.entry_name,self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
         self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 4, 1)
 
+
+        self.button_osk = Gtk.Button()
+        self.button_osk.add(Gtk.Image.new_from_file("keyboard.png"))
+        self.button_osk.connect("clicked", self.on_screen_keyboard)
+        self.grid.attach(self.button_osk, 0, 2, 2, 2)
+
         self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
         self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
-        self.grid.attach(self.button_new_reg, 0, 2, 2, 2)
+        self.grid.attach_next_to(self.button_new_reg,self.button_osk, Gtk.PositionType.RIGHT, 2, 2)
+        
 
         self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of employees (down)")
         self.filter_text.connect("search-changed", self.on_filter_text_changed)
@@ -166,6 +173,9 @@ class TreeViewFilterWindow(Gtk.Window):
                 write_registered(id, name, surname, str(mask_num), "yes")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
+
+    def on_screen_keyboard(self, widget):
+        os.popen("osk")
 
     def on_new_entry_button_clicked(self, widget):
 
