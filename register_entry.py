@@ -162,12 +162,9 @@ class TreeViewFilterWindow(Gtk.Window):
             surname = model[treeiter][2]
 
             mask_num = self.run_mask_dialog()
-            if mask_num == Gtk.ResponseType.CANCEL:
-                self.reset_input()
-                return
-
-            write_registered(id, name, surname, str(mask_num))
-            self.info_msg(f"Registered entry of: {name} {surname}")
+            if not mask_num == Gtk.ResponseType.CANCEL:
+                write_registered(id, name, surname, str(mask_num))
+                self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
     def on_new_entry_button_clicked(self, widget):
@@ -180,12 +177,9 @@ class TreeViewFilterWindow(Gtk.Window):
         else:
 
             mask_num = self.run_mask_dialog()
-            if mask_num == Gtk.ResponseType.CANCEL:
-                self.reset_input()
-                return
-
-            write_registered(id, name, surname, str(mask_num))
-            self.info_msg(f"Registered entry of: {name} {surname}")
+            if not mask_num == Gtk.ResponseType.CANCEL:
+                write_registered(id, name, surname, str(mask_num))
+                self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
     def run_mask_dialog(self):
