@@ -20,7 +20,7 @@ def read_employees():
 
     return people_list[1:]
 
-def write_registered(id, name,surname, mask_num):
+def write_registered(id, name,surname, mask_num, employee):
     xlsx_path = os.path.join(os.getcwd(),"registered.xlsx")
 
     wb = load_workbook(xlsx_path)
@@ -28,7 +28,7 @@ def write_registered(id, name,surname, mask_num):
     ws = wb.worksheets[0]
 
     # Append Row Values
-    ws.append([datetime.now(), id, name, surname, mask_num])
+    ws.append([datetime.now(), id, name, surname, mask_num, employee])
 
     wb.save(xlsx_path)
 
@@ -163,7 +163,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_mask_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
-                write_registered(id, name, surname, str(mask_num))
+                write_registered(id, name, surname, str(mask_num), "yes")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
@@ -178,7 +178,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_mask_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
-                write_registered(id, name, surname, str(mask_num))
+                write_registered(id, name, surname, str(mask_num), "no")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
