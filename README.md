@@ -18,7 +18,13 @@ The script's intended usage is on a simple Windows or Linux device, ideally with
 
 ![Register Entry](./register-entry.png)
 
-The script reads a list of names from the file *"employees.xlsx"* to show them into the list-box for easy selection. Manual entry is also supported. Both selected as well as manually entered names will be written to the file *"registered.xlsx"* with the date/time of entry. Both Excel files need be stored in the current working directory. 
+The script reads a list of names from the file *"employees.xlsx"* to show them in the list-box for easy selection. Manual entry is also supported. Both selected as well as manually entered names will be written to the file *"registered.xlsx"* with the date/time of entry. Both Excel files need be stored together in the same directory, the *data directory*. By default, the script will treat the current working directory (the "active" directory from which the command to execute the script was launched) as the *data directory*. Alternatively, the script can take one parameter consisting of the path to the *data directory*.
+
+for example:
+
+```bash
+python register_entry.py /home/user/register-data
+```
 
 Additional input parameters (in the script is is the number of masks taken) can be easily customized in the custom dialog *ExtraDataDialog*, called from *run_extra_data_dialog*. 
 
