@@ -12,6 +12,15 @@ pip install pipenv
 
 pipenv sync
 ```
+## Usage
+
+The script's intended usage is on a simple Windows or Linux device, ideally with a touch screen. The user can call up the on-screen keyboard by pressing the button marked with the keyboard sign (⌨).
+
+![Register Entry](./register-entry.png)
+
+The script reads a list of names from the file *"employees.xlsx"* to show them into the list-box for easy selection. Manual entry is also supported. Both selected as well as manually entered names will be written to the file *"registered.xlsx"* with the date/time of entry. Both Excel files need be stored in the current working directory. 
+
+Additional input parameters (in the script is is the number of masks taken) can be easily customized in the custom dialog *ExtraDataDialog*, called from *run_extra_data_dialog*. 
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

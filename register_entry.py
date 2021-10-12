@@ -39,7 +39,7 @@ def write_registered(id, name,surname, mask_num, employee):
 
     wb.save(xlsx_path)
 
-class DialogMasks(Gtk.Dialog):
+class ExtraDataDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="Select Mask number (2 max.)", transient_for=parent, flags=0)
         self.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,"None (0)", 0, "1 mask", 1, "2 masks", 2)
@@ -175,7 +175,7 @@ class TreeViewFilterWindow(Gtk.Window):
             name = model[treeiter][1]
             surname = model[treeiter][2]
 
-            mask_num = self.run_mask_dialog()
+            mask_num = self.run_extra_data_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
                 write_registered(id, name, surname, str(mask_num), "yes")
                 self.info_msg(f"Registered entry of: {name} {surname}")
@@ -194,14 +194,14 @@ class TreeViewFilterWindow(Gtk.Window):
             self.error_msg("All fields need to be filled")
         else:
 
-            mask_num = self.run_mask_dialog()
+            mask_num = self.run_extra_data_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
                 write_registered(id, name, surname, str(mask_num), "no")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
-    def run_mask_dialog(self):
-        dialog = DialogMasks(self)
+    def run_extra_data_dialog(self):
+        dialog = ExtraDataDialog(self)
         response = dialog.run()
 
         dialog.destroy()
