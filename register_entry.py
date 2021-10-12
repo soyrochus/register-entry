@@ -119,7 +119,7 @@ class TreeViewFilterWindow(Gtk.Window):
         # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 5, 8, 20)
+        self.grid.attach(self.scrollable_treelist, 0, 5, 8, 10)
         self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 2, 2)
 
         self.scrollable_treelist.add(self.treeview)
@@ -209,5 +209,10 @@ class TreeViewFilterWindow(Gtk.Window):
 
 win = TreeViewFilterWindow()
 win.connect("destroy", Gtk.main_quit)
+
+win.maximize()
+win.set_resizable(True)
+#win.fullscreen()
+
 win.show_all()
 Gtk.main()
