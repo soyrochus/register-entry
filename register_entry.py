@@ -3,6 +3,7 @@
 # Copyright (c) 2021, Iwan van der Kleijn (iwanvanderkleijn@gmail.com)
 # This is Free Software (BSD). See the file LICENSE.txt
 
+import sys
 import gi
 import os, os.path
 from datetime import datetime
@@ -11,15 +12,21 @@ from openpyxl import load_workbook
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+global basedir
+if len(sys.argv) == 2:
+    basedir = sys.argv[1]
+else:
+    basedir = os.getcwd()
+
 import platform
 global osk #onscreen keyboard
 if platform.system() == "Windows":
     osk = "osk"
-else: #only on Linux and must be installed. Will fail on MacOSX 
+else: #only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
 
 def read_employees():
-    xlsx_path = os.path.join(os.getcwd(),"employees.xlsx")
+    xlsx_path = os.path.join(basedir,"employees.xlsx")
     #print(xlsx_path)
     wb = load_workbook(xlsx_path)
     ws = wb.worksheets[0]
@@ -28,7 +35,7 @@ def read_employees():
     return people_list[1:]
 
 def write_registered(id, name,surname, mask_num, employee):
-    xlsx_path = os.path.join(os.getcwd(),"registered.xlsx")
+    xlsx_path = os.path.join(basedir,"registered.xlsx")
     #print(xlsx_path)
     wb = load_workbook(xlsx_path)
     # Select First Worksheet
@@ -81,7 +88,6 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach_next_to(self.entry_name,self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
         self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 4, 1)
 
-
         self.button_osk = Gtk.Button()
         self.button_osk.add(Gtk.Image.new_from_file("keyboard.png"))
         self.button_osk.connect("clicked", self.on_screen_keyboard)
@@ -90,7 +96,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
         self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         self.grid.attach_next_to(self.button_new_reg,self.button_osk, Gtk.PositionType.RIGHT, 2, 2)
-        
+
 
         self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of employees (down)")
         self.filter_text.connect("search-changed", self.on_filter_text_changed)
