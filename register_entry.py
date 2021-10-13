@@ -34,8 +34,19 @@ def read_employees():
 
     return people_list[1:]
 
-def write_registered(id, name,surname, mask_num, employee):
-    xlsx_path = os.path.join(basedir,"registered.xlsx")
+def write_employee(id, name,surname):
+    xlsx_path = os.path.join(basedir,"employees.xlsx")
+    #print(xlsx_path)
+    wb = load_workbook(xlsx_path)
+    # Select First Worksheet
+    ws = wb.worksheets[0]
+
+    # Append Row Values
+    ws.append([id, name, surname])
+    wb.save(xlsx_path)
+
+def write_entry(id, name,surname, mask_num, employee):
+    xlsx_path = os.path.join(basedir,"entries.xlsx")
     #print(xlsx_path)
     wb = load_workbook(xlsx_path)
     # Select First Worksheet
@@ -43,7 +54,6 @@ def write_registered(id, name,surname, mask_num, employee):
 
     # Append Row Values
     ws.append([datetime.now(), id, name, surname, mask_num, employee])
-
     wb.save(xlsx_path)
 
 class ExtraDataDialog(Gtk.Dialog):
@@ -79,6 +89,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.entry_id = Gtk.Entry(text="", placeholder_text="i.e NIF, NIE, Passport nr, etc.")
         self.entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
         self.entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
+        self.check_employee = Gtk.CheckButton(label ="Employee")
 
         self.grid.attach(label_id, 0, 0, 2, 1)
         self.grid.attach_next_to(label_name,label_id, Gtk.PositionType.RIGHT, 2, 1)
@@ -86,7 +97,8 @@ class TreeViewFilterWindow(Gtk.Window):
 
         self.grid.attach_next_to(self.entry_id,label_id, Gtk.PositionType.BOTTOM, 2, 1)
         self.grid.attach_next_to(self.entry_name,self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
-        self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 4, 1)
+        self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 3, 1)
+        self.grid.attach_next_to(self.check_employee,self.entry_surname, Gtk.PositionType.RIGHT, 1, 1)
 
         self.button_osk = Gtk.Button()
         self.button_osk.add(Gtk.Image.new_from_file("keyboard.png"))
@@ -104,8 +116,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
-        for people_ref in read_employees():
-            self.people_liststore.append(list(people_ref))
+        self.load_store(self.people_liststore, read_employees())
 
         # Creating the filter, feeding it with the liststore model
         self.people_filter = self.people_liststore.filter_new()
@@ -130,6 +141,11 @@ class TreeViewFilterWindow(Gtk.Window):
 
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
+
+    def load_store(self, liststore, lst):
+        liststore.clear()
+        for ref in lst:
+            liststore.append(list(ref))
 
     def people_filter_func(self, model, iter, data):
 
@@ -170,6 +186,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.entry_id.set_text("")
         self.entry_name.set_text("")
         self.entry_surname.set_text("")
+        self.check_employee.set_active(False)
 
     def on_reg_employee_button_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -183,7 +200,7 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_extra_data_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
-                write_registered(id, name, surname, str(mask_num), "yes")
+                write_entry(id, name, surname, str(mask_num), "yes")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
@@ -202,8 +219,15 @@ class TreeViewFilterWindow(Gtk.Window):
 
             mask_num = self.run_extra_data_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
-                write_registered(id, name, surname, str(mask_num), "no")
+                is_employee = self.check_employee.get_active()
+
+                write_entry(id, name, surname, str(mask_num), "yes" if is_employee else "no")
+                if is_employee:
+                    write_employee(id, name, surname)
+                    self.load_store(self.people_liststore, read_employees())
+
                 self.info_msg(f"Registered entry of: {name} {surname}")
+                
             self.reset_input()
 
     def run_extra_data_dialog(self):
