@@ -77,42 +77,49 @@ class TreeViewFilterWindow(Gtk.Window):
         # Setting up the self.grid in which the elements are to be positioned
         self.grid = Gtk.Grid()
         self.grid.set_column_homogeneous(True)
-        self.grid.set_row_homogeneous(True)
+        self.grid.set_row_homogeneous(False)
         self.add(self.grid)
 
-        label_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        label_new_entry = Gtk.Label(label="Register with your ID, name and surname if you are an external visitor or if you  register for the first time (set check for emproyee)")
+        label_new_entry.set_halign(Gtk.Align.START)
+
+        self.grid.attach(label_new_entry, 0, 0, 7, 1)
 
         label_id = Gtk.Label(label="ID")
         label_name = Gtk.Label(label="Name")
         label_surname = Gtk.Label(label="Surname")
 
+        self.grid.attach(label_id, 1, 1, 2, 1)
+        self.grid.attach_next_to(label_name,label_id, Gtk.PositionType.RIGHT, 2, 1)
+        self.grid.attach_next_to(label_surname,label_name, Gtk.PositionType.RIGHT, 3, 1)
+
+        self.check_employee = Gtk.CheckButton(label ="Employee")
         self.entry_id = Gtk.Entry(text="", placeholder_text="i.e NIF, NIE, Passport nr, etc.")
         self.entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
         self.entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
-        self.check_employee = Gtk.CheckButton(label ="Employee")
 
-        self.grid.attach(label_id, 0, 0, 2, 1)
-        self.grid.attach_next_to(label_name,label_id, Gtk.PositionType.RIGHT, 2, 1)
-        self.grid.attach_next_to(label_surname,label_name, Gtk.PositionType.RIGHT, 2, 1)
-
+        self.grid.attach(self.check_employee, 0, 2, 1, 1)
         self.grid.attach_next_to(self.entry_id,label_id, Gtk.PositionType.BOTTOM, 2, 1)
         self.grid.attach_next_to(self.entry_name,self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
         self.grid.attach_next_to(self.entry_surname,self.entry_name, Gtk.PositionType.RIGHT, 3, 1)
-        self.grid.attach_next_to(self.check_employee,self.entry_surname, Gtk.PositionType.RIGHT, 1, 1)
+
+        self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
+        self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
+        self.grid.attach(self.button_new_reg, 0, 3, 1, 1)
 
         self.button_osk = Gtk.Button()
         self.button_osk.add(Gtk.Image.new_from_file("keyboard.png"))
         self.button_osk.connect("clicked", self.on_screen_keyboard)
-        self.grid.attach(self.button_osk, 0, 2, 2, 2)
+        #self.grid.attach_next_to(self.button_osk,self.button_new_reg, Gtk.PositionType.RIGHT, 1, 1)
+        self.grid.attach(self.button_osk, 7, 3, 1, 1)
 
-        self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
-        self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
-        self.grid.attach_next_to(self.button_new_reg,self.button_osk, Gtk.PositionType.RIGHT, 2, 2)
-
+        label_employee_entry = Gtk.Label(label="If you have registered before lookup and choose your name from the list below")
+        label_employee_entry.set_halign(Gtk.Align.START)
+        self.grid.attach(label_employee_entry, 0, 4, 8, 1)
 
         self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of employees (down)")
         self.filter_text.connect("search-changed", self.on_filter_text_changed)
-        self.grid.attach(self.filter_text, 0, 4, 6, 1)
+        self.grid.attach(self.filter_text, 0, 5, 8, 1)
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
@@ -136,8 +143,8 @@ class TreeViewFilterWindow(Gtk.Window):
         # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 5, 8, 10)
-        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 2, 2)
+        self.grid.attach(self.scrollable_treelist, 0, 6, 8, 10)
+        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
 
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
@@ -187,6 +194,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.entry_name.set_text("")
         self.entry_surname.set_text("")
         self.check_employee.set_active(False)
+        self.check_employee.grab_focus()
 
     def on_reg_employee_button_clicked(self, widget):
         selection = self.treeview.get_selection()
@@ -207,6 +215,7 @@ class TreeViewFilterWindow(Gtk.Window):
     def on_screen_keyboard(self, widget):
         global osk
         os.popen(osk)
+        self.entry_id.grab_focus()
 
     def on_new_entry_button_clicked(self, widget):
 
@@ -227,7 +236,7 @@ class TreeViewFilterWindow(Gtk.Window):
                     self.load_store(self.people_liststore, read_employees())
 
                 self.info_msg(f"Registered entry of: {name} {surname}")
-                
+
             self.reset_input()
 
     def run_extra_data_dialog(self):
