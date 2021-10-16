@@ -132,13 +132,14 @@ class TreeViewFilterWindow(Gtk.Window):
 
         # creating the treeview, making it use the filter as a model, and adding the columns
         self.treeview = Gtk.TreeView(model=self.people_filter)
+        self.treeview.connect("row-activated", self.on_reg_employee_clicked)
         for i, column_title in enumerate(["ID", "First name", "Surname"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             self.treeview.append_column(column)
 
         self.reg_employee = Gtk.Button(label="Entree of Employee")
-        self.reg_employee.connect("clicked", self.on_reg_employee_button_clicked)
+        self.reg_employee.connect("clicked", self.on_reg_employee_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
@@ -196,7 +197,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.check_employee.set_active(False)
         self.check_employee.grab_focus()
 
-    def on_reg_employee_button_clicked(self, widget):
+    def on_reg_employee_clicked(self, ignore=None, ignore2=None, ignore3=None, ignore4=None):
         selection = self.treeview.get_selection()
         model, treeiter = selection.get_selected()
         if treeiter is None:
