@@ -131,11 +131,12 @@ class TreeViewFilterWindow(Gtk.Window):
         self.people_filter.set_visible_func(self.people_filter_func)
 
         # creating the treeview, making it use the filter as a model, and adding the columns
-        self.treeview = Gtk.TreeView(model=self.people_filter)
+        self.treeview = Gtk.TreeView(model=Gtk.TreeModelSort(model=self.people_filter))
         self.treeview.connect("row-activated", self.on_reg_employee_clicked)
         for i, column_title in enumerate(["ID", "First name", "Surname"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            column.set_sort_column_id(i)
             self.treeview.append_column(column)
 
         self.reg_employee = Gtk.Button(label="Entree of Employee")
