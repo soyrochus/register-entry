@@ -156,11 +156,11 @@ class TreeViewFilterWindow(Gtk.Window):
 
     def people_filter_func(self, model, iter, data):
 
-        current_filter_str = self.filter_text.get_text().strip()
+        current_filter_str = self.filter_text.get_text().strip().lower()
         if (current_filter_str == ""):
             return True
         else:
-            text =  model[iter][0] +  model[iter][1] +  model[iter][2]
+            text =  (model[iter][0] +  model[iter][1] +  model[iter][2]).lower()
             return text.find(current_filter_str) > -1
 
     def on_filter_text_changed(self,widget):
