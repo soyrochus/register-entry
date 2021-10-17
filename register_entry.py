@@ -19,7 +19,7 @@ else:
     basedir = os.getcwd()
 
 settings = Gtk.Settings.get_default()
-print(settings.get_property("gtk-font-name"))
+#print(settings.get_property("gtk-font-name"))
 
 import platform
 global osk  # onscreen keyboard
