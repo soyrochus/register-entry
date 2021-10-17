@@ -25,6 +25,7 @@ import platform
 global osk  # onscreen keyboard
 if platform.system() == "Windows":
     osk = "osk"
+    settings.set_property("gtk-font-name", "Segoe UI 11")
 else:  # only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
     settings.set_property("gtk-font-name", "Ubuntu 12")
@@ -120,7 +121,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach_next_to(self.entry_name, self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
         self.grid.attach_next_to(self.entry_surname, self.entry_name, Gtk.PositionType.RIGHT, 3, 1)
 
-        self.button_new_reg = Gtk.Button(label="New entry (unregistered)")
+        self.button_new_reg = Gtk.Button(label="Register and entry")
         self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         self.grid.attach(self.button_new_reg, 0, 3, 1, 1)
 
@@ -157,7 +158,7 @@ class TreeViewFilterWindow(Gtk.Window):
             column.set_sort_column_id(i)
             self.treeview.append_column(column)
 
-        self.reg_employee = Gtk.Button(label="Entree of Employee")
+        self.reg_employee = Gtk.Button(label="Entry from List")
         self.reg_employee.connect("clicked", self.on_reg_employee_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow
