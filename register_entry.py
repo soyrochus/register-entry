@@ -18,14 +18,16 @@ if len(sys.argv) == 2:
 else:
     basedir = os.getcwd()
 
-import platform
+settings = Gtk.Settings.get_default()
+print(settings.get_property("gtk-font-name"))
 
+import platform
 global osk  # onscreen keyboard
 if platform.system() == "Windows":
     osk = "osk"
 else:  # only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
-
+    settings.set_property("gtk-font-name", "Ubuntu 12")
 
 def read_employees():
     xlsx_path = os.path.join(basedir, "employees.xlsx")
@@ -90,6 +92,8 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid = Gtk.Grid()
         self.grid.set_column_homogeneous(True)
         self.grid.set_row_homogeneous(False)
+        self.grid.set_column_spacing(5)
+        self.grid.set_row_spacing(5)
         self.add(self.grid)
 
         label_new_entry = Gtk.Label(
