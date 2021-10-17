@@ -205,6 +205,12 @@ class TreeViewFilterWindow(Gtk.Window):
         dialog.destroy()
 
     def reset_input(self):
+
+        selection = self.treeview.get_selection()
+        model, treeiter = selection.get_selected()
+        if treeiter != None:
+            selection.unselect_iter(treeiter)
+
         self.filter_text.set_text("")
         self.entry_id.set_text("")
         self.entry_name.set_text("")
