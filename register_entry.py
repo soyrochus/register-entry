@@ -30,29 +30,27 @@ else:  # only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
     settings.set_property("gtk-font-name", "Ubuntu 12")
 
-def read_employees():
-    xlsx_path = os.path.join(basedir, "employees.xlsx")
+def read_people():
+    xlsx_path = os.path.join(basedir, "people.xlsx")
     # print(xlsx_path)
     wb = load_workbook(xlsx_path)
     ws = wb.worksheets[0]
-    people_list = [[str(e[0]), str(e[1]), str(e[2])] for e in ws.values if e != (None, None, None)]
+    people_list = [[str(e[0]), str(e[1]), str(e[2])] for e in ws.values if e != (None, None, None, None)]
 
     return people_list[1:]
 
-
-def write_employee(id, name, surname):
-    xlsx_path = os.path.join(basedir, "employees.xlsx")
+def write_person(id, name, surname, is_employee):
+    xlsx_path = os.path.join(basedir, "people.xlsx")
     # print(xlsx_path)
     wb = load_workbook(xlsx_path)
     # Select First Worksheet
     ws = wb.worksheets[0]
 
     # Append Row Values
-    ws.append([id, name, surname])
+    ws.append([id, name, surname, is_employee])
     wb.save(xlsx_path)
 
-
-def write_entry(id, name, surname, mask_num, employee):
+def write_entry(id, name, surname, mask_num, is_employee):
     xlsx_path = os.path.join(basedir, "entries.xlsx")
     # print(xlsx_path)
     wb = load_workbook(xlsx_path)
@@ -60,9 +58,8 @@ def write_entry(id, name, surname, mask_num, employee):
     ws = wb.worksheets[0]
 
     # Append Row Values
-    ws.append([datetime.now(), id, name, surname, mask_num, employee])
+    ws.append([datetime.now(), id, name, surname, mask_num, is_employee])
     wb.save(xlsx_path)
-
 
 class ExtraDataDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -77,12 +74,10 @@ class ExtraDataDialog(Gtk.Dialog):
         box.add(label)
         self.show_all()
 
-
 def load_store(liststore, lst):
     liststore.clear()
     for ref in lst:
         liststore.append(list(ref))
-
 
 class TreeViewFilterWindow(Gtk.Window):
     def __init__(self):
@@ -98,7 +93,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.add(self.grid)
 
         label_new_entry = Gtk.Label(
-            label="Register with your ID, name and surname if you are an external visitor or if you  register for the "
+            label="Register here with your ID, name and surname if you  register for the "
                   "first time (set check-box if you are an employee)")
         label_new_entry.set_halign(Gtk.Align.START)
         self.grid.attach(label_new_entry, 0, 0, 7, 1)
@@ -131,18 +126,18 @@ class TreeViewFilterWindow(Gtk.Window):
         # self.grid.attach_next_to(self.button_osk,self.button_new_reg, Gtk.PositionType.RIGHT, 1, 1)
         self.grid.attach(self.button_osk, 7, 3, 1, 1)
 
-        label_employee_entry = Gtk.Label(
-            label="If you have registered before lookup and choose your name from the list below")
-        label_employee_entry.set_halign(Gtk.Align.START)
-        self.grid.attach(label_employee_entry, 0, 4, 8, 1)
+        label_entry_from_list = Gtk.Label(
+            label="If you have registered before, then lookup and choose your name from the list below")
+        label_entry_from_list.set_halign(Gtk.Align.START)
+        self.grid.attach(label_entry_from_list, 0, 4, 8, 1)
 
-        self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of employees (down)")
+        self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of people (down)")
         self.filter_text.connect("search-changed", self.on_filter_text_changed)
         self.grid.attach(self.filter_text, 0, 5, 8, 1)
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
-        load_store(self.people_liststore, read_employees())
+        load_store(self.people_liststore, read_people())
 
         # Creating the filter, feeding it with the liststore model
         self.people_filter = self.people_liststore.filter_new()
@@ -151,21 +146,23 @@ class TreeViewFilterWindow(Gtk.Window):
 
         # creating the treeview, making it use the filter as a model, and adding the columns
         self.treeview = Gtk.TreeView(model=Gtk.TreeModelSort(model=self.people_filter))
-        self.treeview.connect("row-activated", self.on_reg_employee_clicked)
+        self.treeview.connect("row-activated", self.on_reg_person_clicked)
         for i, column_title in enumerate(["ID", "First name", "Surname"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             column.set_sort_column_id(i)
             self.treeview.append_column(column)
+            if i == 0:
+                column.set_visible(False) #Hide ID
 
-        self.reg_employee = Gtk.Button(label="Entry from List")
-        self.reg_employee.connect("clicked", self.on_reg_employee_clicked)
+        self.reg_person = Gtk.Button(label="Entry from List")
+        self.reg_person.connect("clicked", self.on_reg_person_clicked)
 
         # setting up the layout, putting the treeview in a scrollwindow
         self.scrollable_treelist = Gtk.ScrolledWindow()
         self.scrollable_treelist.set_vexpand(True)
         self.grid.attach(self.scrollable_treelist, 0, 6, 8, 10)
-        self.grid.attach_next_to(self.reg_employee, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
+        self.grid.attach_next_to(self.reg_person, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
 
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
@@ -218,11 +215,11 @@ class TreeViewFilterWindow(Gtk.Window):
         self.check_employee.set_active(False)
         self.check_employee.grab_focus()
 
-    def on_reg_employee_clicked(self, ignore=None, ignore2=None, ignore3=None, ignore4=None):
+    def on_reg_person_clicked(self, ignore=None, ignore2=None, ignore3=None, ignore4=None):
         selection = self.treeview.get_selection()
         model, treeiter = selection.get_selected()
         if treeiter is None:
-            self.error_msg("Employee needs to be selected")
+            self.error_msg("Person needs to be selected")
         else:
             id = model[treeiter][0]
             name = model[treeiter][1]
@@ -247,18 +244,15 @@ class TreeViewFilterWindow(Gtk.Window):
         if id == "" or name == "" or surname == "":
             self.error_msg("All fields need to be filled")
         else:
-
             mask_num = self.run_extra_data_dialog()
             if not mask_num == Gtk.ResponseType.CANCEL:
-                is_employee = self.check_employee.get_active()
+                is_employee = "yes" if self.check_employee.get_active() else "no"
 
-                write_entry(id, name, surname, str(mask_num), "yes" if is_employee else "no")
-                if is_employee:
-                    write_employee(id, name, surname)
-                    load_store(self.people_liststore, read_employees())
+                write_entry(id, name, surname, str(mask_num), is_employee)
+                write_person(id, name, surname, is_employee)
+                load_store(self.people_liststore, read_people())
 
                 self.info_msg(f"Registered entry of: {name} {surname}")
-
             self.reset_input()
 
     def run_extra_data_dialog(self):
@@ -267,7 +261,6 @@ class TreeViewFilterWindow(Gtk.Window):
 
         dialog.destroy()
         return response
-
 
 win = TreeViewFilterWindow()
 win.connect("destroy", Gtk.main_quit)
