@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Register entry is a Python (version 3) GTK3 program to register entry into buildings, offices etc (due to COVID)
 # Copyright (c) 2021, Iwan van der Kleijn (iwanvanderkleijn@gmail.com)
-# This is Free Software (BSD). See the file LICENSE.txt
+# This is Free Software (BSD). See the file LICENSE.Tex
 
 import sys
 import gi
@@ -12,7 +12,8 @@ from openpyxl import load_workbook
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-global basedir
+keyboard_image = os.path.join(os.path.dirname(__file__), "keyboard.png")
+
 if len(sys.argv) == 2:
     basedir = sys.argv[1]
 else:
@@ -22,8 +23,7 @@ settings = Gtk.Settings.get_default()
 #print(settings.get_property("gtk-font-name"))
 
 import platform
-global osk  # onscreen keyboard
-if platform.system() == "Windows":
+if platform.system() == "Windows":  #osk -> onscreen keyboard or equivalent
     osk = "osk"
     settings.set_property("gtk-font-name", "Segoe UI 11")
 else:  # only on Linux and must be installed. Will fail on MacOSX
@@ -121,7 +121,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach(self.button_new_reg, 0, 3, 1, 1)
 
         self.button_osk = Gtk.Button()
-        self.button_osk.add(Gtk.Image.new_from_file("keyboard.png"))
+        self.button_osk.add(Gtk.Image.new_from_file(keyboard_image))
         self.button_osk.connect("clicked", self.on_screen_keyboard)
         # self.grid.attach_next_to(self.button_osk,self.button_new_reg, Gtk.PositionType.RIGHT, 1, 1)
         self.grid.attach(self.button_osk, 7, 3, 1, 1)
@@ -232,7 +232,6 @@ class TreeViewFilterWindow(Gtk.Window):
             self.reset_input()
 
     def on_screen_keyboard(self, widget):
-        global osk
         os.popen(osk)
         self.entry_id.grab_focus()
 
@@ -267,7 +266,7 @@ win.connect("destroy", Gtk.main_quit)
 
 win.maximize()
 win.set_resizable(True)
-# win.fullscreen()
+# win.full screen()
 
 win.show_all()
 Gtk.main()
