@@ -84,56 +84,98 @@ class TreeViewFilterWindow(Gtk.Window):
         super().__init__(title="Register Entry")
         self.set_border_width(10)
 
-        # Setting up the self.grid in which the elements are to be positioned
-        self.grid = Gtk.Grid()
-        self.grid.set_column_homogeneous(True)
-        self.grid.set_row_homogeneous(False)
-        self.grid.set_column_spacing(5)
-        self.grid.set_row_spacing(5)
-        self.add(self.grid)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.add(vbox)
+
+        stack = Gtk.Stack()
+        stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        stack.set_transition_duration(300)
+
+        self.setup_list_panel(stack)
+        self.setup_form_panel(stack)
+
+        stack_switcher = Gtk.StackSwitcher()
+        stack_switcher.set_stack(stack)
+        stack_switcher.set_hexpand(True)
+        vbox.pack_start(stack_switcher, False, False, 10)
+
+        vbox.pack_start(stack, True, True, 0)
+        self.stack = stack
+        self.show_all()
+
+    def setup_form_panel(self, stack):
+
+        grid = Gtk.Grid()
+        grid.set_column_homogeneous(True)
+        grid.set_row_homogeneous(False)
+        grid.set_column_spacing(5)
+        grid.set_row_spacing(5)
+
+        button_osk = Gtk.Button()
+        button_osk.add(Gtk.Image.new_from_file(keyboard_image))
+        button_osk.connect("clicked", self.on_screen_keyboard)
+        grid.attach(button_osk, 0, 0, 1, 1)
 
         label_new_entry = Gtk.Label(
-            label="Register here with your ID, name and surname if you  register for the "
+            label="Register here with your ID, name and surname if you register for the "
                   "first time (set check-box if you are an employee)")
         label_new_entry.set_halign(Gtk.Align.START)
-        self.grid.attach(label_new_entry, 0, 0, 7, 1)
+        grid.attach(label_new_entry, 0, 1, 7, 1)
 
         label_id = Gtk.Label(label="ID")
+        label_id.set_halign(Gtk.Align.START)
         label_name = Gtk.Label(label="Name")
+        label_name.set_halign(Gtk.Align.START)
         label_surname = Gtk.Label(label="Surname")
+        label_surname.set_halign(Gtk.Align.START)
 
-        self.grid.attach(label_id, 1, 1, 2, 1)
-        self.grid.attach_next_to(label_name, label_id, Gtk.PositionType.RIGHT, 2, 1)
-        self.grid.attach_next_to(label_surname, label_name, Gtk.PositionType.RIGHT, 3, 1)
+        check_employee = Gtk.CheckButton(label="Employee")
+        entry_id = Gtk.Entry(text="", placeholder_text="i.e NIF, NIE, Passport nr, etc.")
+        entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
+        entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
 
-        self.check_employee = Gtk.CheckButton(label="Employee")
-        self.entry_id = Gtk.Entry(text="", placeholder_text="i.e NIF, NIE, Passport nr, etc.")
-        self.entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
-        self.entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
+        grid.attach(check_employee, 1, 2, 1, 1)
+        grid.attach(label_id, 0, 3, 1, 1)
+        grid.attach_next_to(entry_id, label_id, Gtk.PositionType.RIGHT, 2, 1)
+        grid.attach(label_name,0, 4, 1, 1)
+        grid.attach_next_to(entry_name, label_name, Gtk.PositionType.RIGHT, 3, 1)
+        grid.attach(label_surname,0, 5, 1, 1)
+        grid.attach_next_to(entry_surname, label_surname, Gtk.PositionType.RIGHT, 3, 1)
 
-        self.grid.attach(self.check_employee, 0, 2, 1, 1)
-        self.grid.attach_next_to(self.entry_id, label_id, Gtk.PositionType.BOTTOM, 2, 1)
-        self.grid.attach_next_to(self.entry_name, self.entry_id, Gtk.PositionType.RIGHT, 2, 1)
-        self.grid.attach_next_to(self.entry_surname, self.entry_name, Gtk.PositionType.RIGHT, 3, 1)
+        self.entry_id = entry_id
+        self.entry_name = entry_name
+        self.entry_surname = entry_surname
+        self.check_employee = check_employee
 
-        self.button_new_reg = Gtk.Button(label="Register and entry")
-        self.button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
-        self.grid.attach(self.button_new_reg, 0, 3, 1, 1)
+        button_new_reg = Gtk.Button(label="Register Entry")
+        button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
+        grid.attach(button_new_reg, 0, 6, 1, 1)
 
-        self.button_osk = Gtk.Button()
-        self.button_osk.add(Gtk.Image.new_from_file(keyboard_image))
-        self.button_osk.connect("clicked", self.on_screen_keyboard)
-        # self.grid.attach_next_to(self.button_osk,self.button_new_reg, Gtk.PositionType.RIGHT, 1, 1)
-        self.grid.attach(self.button_osk, 7, 3, 1, 1)
+        stack.add_titled(grid, "form", "If this is your first time to register,\nclick here to fill in the form")
+
+    def setup_list_panel(self, stack):
+        # Setting up the self.grid in which the elements are to be positioned
+
+        grid = Gtk.Grid()
+        grid.set_column_homogeneous(True)
+        grid.set_row_homogeneous(False)
+        grid.set_column_spacing(5)
+        grid.set_row_spacing(5)
+
+        button_osk = Gtk.Button()
+        button_osk.add(Gtk.Image.new_from_file(keyboard_image))
+        button_osk.connect("clicked", self.on_screen_keyboard)
+        grid.attach(button_osk, 0, 0, 1, 1)
 
         label_entry_from_list = Gtk.Label(
-            label="If you have registered before, then lookup and choose your name from the list below")
+            label="Lookup and choose your name from the list below")
         label_entry_from_list.set_halign(Gtk.Align.START)
-        self.grid.attach(label_entry_from_list, 0, 4, 8, 1)
+        grid.attach(label_entry_from_list, 0, 1, 8, 1)
 
-        self.filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of people (down)")
-        self.filter_text.connect("search-changed", self.on_filter_text_changed)
-        self.grid.attach(self.filter_text, 0, 5, 8, 1)
+        filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of people (down)")
+        filter_text.connect("search-changed", self.on_filter_text_changed)
+        grid.attach(filter_text, 0, 2, 8, 1)
+        self.filter_text = filter_text
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
@@ -145,27 +187,26 @@ class TreeViewFilterWindow(Gtk.Window):
         self.people_filter.set_visible_func(self.people_filter_func)
 
         # creating the treeview, making it use the filter as a model, and adding the columns
-        self.treeview = Gtk.TreeView(model=Gtk.TreeModelSort(model=self.people_filter))
-        self.treeview.connect("row-activated", self.on_reg_person_clicked)
+        treeview = Gtk.TreeView(model=Gtk.TreeModelSort(model=self.people_filter))
+        treeview.connect("row-activated", self.on_reg_person_clicked)
         for i, column_title in enumerate(["ID", "First name", "Surname"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             column.set_sort_column_id(i)
-            self.treeview.append_column(column)
+            treeview.append_column(column)
             if i == 0:
                 column.set_visible(False) #Hide ID
-
-        self.reg_person = Gtk.Button(label="Entry from List")
-        self.reg_person.connect("clicked", self.on_reg_person_clicked)
-
+        self.treeview = treeview
+        reg_person = Gtk.Button(label="Register Entry")
+        reg_person.connect("clicked", self.on_reg_person_clicked)
         # setting up the layout, putting the treeview in a scrollwindow
-        self.scrollable_treelist = Gtk.ScrolledWindow()
-        self.scrollable_treelist.set_vexpand(True)
-        self.grid.attach(self.scrollable_treelist, 0, 6, 8, 10)
-        self.grid.attach_next_to(self.reg_person, self.scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
+        scrollable_treelist = Gtk.ScrolledWindow()
+        scrollable_treelist.set_vexpand(True)
+        grid.attach(scrollable_treelist, 0, 3, 8, 10)
+        grid.attach_next_to(reg_person, scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
 
-        self.scrollable_treelist.add(self.treeview)
-        self.show_all()
+        scrollable_treelist.add(treeview)
+        stack.add_titled(grid, "list", "If you have registered before,\nclick here to select youre name from the list")
 
     def people_filter_func(self, model, iter, data):
 
@@ -213,7 +254,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.entry_name.set_text("")
         self.entry_surname.set_text("")
         self.check_employee.set_active(False)
-        self.check_employee.grab_focus()
+        self.grab_focus_active_input()
 
     def on_reg_person_clicked(self, ignore=None, ignore2=None, ignore3=None, ignore4=None):
         selection = self.treeview.get_selection()
@@ -226,14 +267,20 @@ class TreeViewFilterWindow(Gtk.Window):
             surname = model[treeiter][2]
 
             mask_num = self.run_extra_data_dialog()
-            if not mask_num == Gtk.ResponseType.CANCEL:
+            if mask_num != Gtk.ResponseType.CANCEL and mask_num != Gtk.ResponseType.CLOSE and mask_num != Gtk.ResponseType.DELETE_EVENT:
                 write_entry(id, name, surname, str(mask_num), "yes")
                 self.info_msg(f"Registered entry of: {name} {surname}")
             self.reset_input()
 
+    def grab_focus_active_input(self):
+        if self.stack.props.visible_child_name == "form":
+            self.check_employee.grab_focus()
+        else:
+            self.filter_text.grab_focus()
+
     def on_screen_keyboard(self, widget):
         os.popen(osk)
-        self.entry_id.grab_focus()
+        self.grab_focus_active_input()
 
     def on_new_entry_button_clicked(self, widget):
 
@@ -244,7 +291,7 @@ class TreeViewFilterWindow(Gtk.Window):
             self.error_msg("All fields need to be filled")
         else:
             mask_num = self.run_extra_data_dialog()
-            if not mask_num == Gtk.ResponseType.CANCEL:
+            if mask_num != Gtk.ResponseType.CANCEL and mask_num != Gtk.ResponseType.CLOSE and mask_num != Gtk.ResponseType.DELETE_EVENT:
                 is_employee = "yes" if self.check_employee.get_active() else "no"
 
                 write_entry(id, name, surname, str(mask_num), is_employee)
