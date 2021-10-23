@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 openpyxl = "*"
+watchdog = "*"
 
 [dev-packages]
 
