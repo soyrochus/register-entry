@@ -111,8 +111,11 @@ class TreeViewFilterWindow(Gtk.Window):
         grid.set_column_spacing(5)
         grid.set_row_spacing(5)
 
-        button_osk = Gtk.Button()
-        button_osk.add(Gtk.Image.new_from_file(keyboard_image))
+        button_osk = Gtk.Button(label="Keyboard")
+        button_osk.set_image(Gtk.Image.new_from_file(keyboard_image))
+        button_osk.set_always_show_image(True)
+        button_osk.set_image_position(Gtk.PositionType.TOP)
+
         button_osk.connect("clicked", self.on_screen_keyboard)
         grid.attach(button_osk, 0, 0, 1, 1)
 
@@ -151,7 +154,7 @@ class TreeViewFilterWindow(Gtk.Window):
         button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         grid.attach(button_new_reg, 0, 6, 1, 1)
 
-        stack.add_titled(grid, "form", "If this is your first time to register,\nclick here to fill in the form")
+        stack.add_titled(grid, "form", "First time registration")
 
     def setup_list_panel(self, stack):
         # Setting up the self.grid in which the elements are to be positioned
@@ -162,8 +165,11 @@ class TreeViewFilterWindow(Gtk.Window):
         grid.set_column_spacing(5)
         grid.set_row_spacing(5)
 
-        button_osk = Gtk.Button()
-        button_osk.add(Gtk.Image.new_from_file(keyboard_image))
+        button_osk = Gtk.Button(label="Keyboard")
+        button_osk.set_image(Gtk.Image.new_from_file(keyboard_image))
+        button_osk.set_always_show_image(True)
+        button_osk.set_image_position(Gtk.PositionType.TOP)
+
         button_osk.connect("clicked", self.on_screen_keyboard)
         grid.attach(button_osk, 0, 0, 1, 1)
 
@@ -206,7 +212,7 @@ class TreeViewFilterWindow(Gtk.Window):
         grid.attach_next_to(reg_person, scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
 
         scrollable_treelist.add(treeview)
-        stack.add_titled(grid, "list", "If you have registered before,\nclick here to select youre name from the list")
+        stack.add_titled(grid, "list", "Select your name (once registered)")
 
     def people_filter_func(self, model, iter, data):
 
