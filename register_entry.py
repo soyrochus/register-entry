@@ -13,6 +13,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 keyboard_image = os.path.join(os.path.dirname(__file__), "keyboard.png")
+icon_image = os.path.join(os.path.dirname(__file__), "entry.png")
 
 if len(sys.argv) == 2:
     basedir = sys.argv[1]
@@ -83,6 +84,7 @@ class TreeViewFilterWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="Register Entry")
         self.set_border_width(10)
+        self.set_icon_from_file(icon_image)
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(vbox)
