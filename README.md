@@ -35,6 +35,8 @@ python register_entry.py /home/user/register-data
 
 Additional input parameters (in the script is is the number of masks taken) can be easily customized in the custom dialog *ExtraDataDialog*, called from *run_extra_data_dialog*.
 
+A company logo can be displayed in the app's top bar by modifying the file *"logo.png"*. The styling of the app can be changed by modifying the file *"styles.css"* as script is using the *GtkCssProvider* class to change it's appearance.
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
