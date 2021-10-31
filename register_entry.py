@@ -6,14 +6,16 @@
 import sys
 import gi
 import os, os.path
-from datetime import datetime
-from openpyxl import load_workbook
+from data import *
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
+logo_image = os.path.join(os.path.dirname(__file__), "logo.png")
 keyboard_image = os.path.join(os.path.dirname(__file__), "keyboard.png")
 icon_image = os.path.join(os.path.dirname(__file__), "entry.png")
+app_css = os.path.join(os.path.dirname(__file__), "styles.css")
+button_image = os.path.join(os.path.dirname(__file__), "register-entry-button.png")
 
 if len(sys.argv) == 2:
     basedir = sys.argv[1]
@@ -26,41 +28,11 @@ settings = Gtk.Settings.get_default()
 import platform
 if platform.system() == "Windows":  #osk -> onscreen keyboard or equivalent
     osk = "osk"
-    settings.set_property("gtk-font-name", "Segoe UI 11")
+    #settings.set_property("gtk-font-name", "Segoe UI 11")
 else:  # only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
-    settings.set_property("gtk-font-name", "Ubuntu 12")
+    #settings.set_property("gtk-font-name", "Ubuntu 12")
 
-def read_people():
-    xlsx_path = os.path.join(basedir, "people.xlsx")
-    # print(xlsx_path)
-    wb = load_workbook(xlsx_path)
-    ws = wb.worksheets[0]
-    people_list = [[str(e[0]), str(e[1]), str(e[2])] for e in ws.values if e != (None, None, None, None)]
-
-    return people_list[1:]
-
-def write_person(id, name, surname, is_employee):
-    xlsx_path = os.path.join(basedir, "people.xlsx")
-    # print(xlsx_path)
-    wb = load_workbook(xlsx_path)
-    # Select First Worksheet
-    ws = wb.worksheets[0]
-
-    # Append Row Values
-    ws.append([id, name, surname, is_employee])
-    wb.save(xlsx_path)
-
-def write_entry(id, name, surname, mask_num, is_employee):
-    xlsx_path = os.path.join(basedir, "entries.xlsx")
-    # print(xlsx_path)
-    wb = load_workbook(xlsx_path)
-    # Select First Worksheet
-    ws = wb.worksheets[0]
-
-    # Append Row Values
-    ws.append([datetime.now(), id, name, surname, mask_num, is_employee])
-    wb.save(xlsx_path)
 
 class ExtraDataDialog(Gtk.Dialog):
     def __init__(self, parent):
@@ -83,49 +55,65 @@ def load_store(liststore, lst):
 class TreeViewFilterWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="Register Entry")
-        self.set_border_width(10)
         self.set_icon_from_file(icon_image)
 
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
         self.add(vbox)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
 
         stack = Gtk.Stack()
         stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
         stack.set_transition_duration(300)
-
         self.setup_list_panel(stack)
         self.setup_form_panel(stack)
 
-        stack_switcher = Gtk.StackSwitcher()
-        stack_switcher.set_stack(stack)
-        stack_switcher.set_hexpand(True)
-        vbox.pack_start(stack_switcher, False, False, 10)
+        logo = Gtk.Image.new_from_file(logo_image)
+        logo.props.halign = Gtk.Align.START
+        vbox.pack_start(logo, False, False, 0)
 
-        vbox.pack_start(stack, True, True, 0)
-        self.stack = stack
-        self.show_all()
-
-    def setup_form_panel(self, stack):
-
-        grid = Gtk.Grid()
-        grid.set_column_homogeneous(True)
-        grid.set_row_homogeneous(False)
-        grid.set_column_spacing(5)
-        grid.set_row_spacing(5)
-
-        button_osk = Gtk.Button(label="Keyboard")
+        button_osk = Gtk.Button(label="Open Keyboard")
         button_osk.set_image(Gtk.Image.new_from_file(keyboard_image))
         button_osk.set_always_show_image(True)
         button_osk.set_image_position(Gtk.PositionType.TOP)
-
         button_osk.connect("clicked", self.on_screen_keyboard)
-        grid.attach(button_osk, 0, 0, 1, 1)
+        button_osk.props.halign = Gtk.Align.END
 
-        label_new_entry = Gtk.Label(
-            label="Register here with your ID, name and surname if you register for the "
-                  "first time (set check-box if you are an employee)")
-        label_new_entry.set_halign(Gtk.Align.START)
-        grid.attach(label_new_entry, 0, 1, 7, 1)
+        stack_switcher = Gtk.StackSwitcher()
+        stack_switcher.set_stack(stack)
+        hbox.pack_start(stack_switcher, False, False, 0)
+        hbox.pack_start(button_osk, True, False, 0)
+
+        vbox.pack_start(hbox, False, False, 0)
+        vbox.pack_start(stack, True, True, 0)
+        self.stack = stack
+
+        self.styling_app()
+        self.show_all()
+        self.grab_focus_active_input()
+
+    def styling_app(self):
+        screen = Gdk.Screen.get_default()
+        provider = Gtk.CssProvider()
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(
+            screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+        provider.load_from_path(app_css)
+
+    def setup_form_panel(self, stack):
+
+        panel_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        panel_box.set_name("panelbox")
+        label_form = Gtk.Label(label="Register here with your ID, name and surname if you register for the "
+                  "first time (check employee)")
+        label_form.set_halign(Gtk.Align.START)
+        label_form.set_name("formlabel")
+        panel_box.pack_start(label_form, False, False, 0)
+        grid = Gtk.Grid()
+        grid.set_column_homogeneous(True)
+        grid.set_row_homogeneous(False)
+        grid.set_column_spacing(10)
+        grid.set_row_spacing(10)
 
         label_id = Gtk.Label(label="ID")
         label_id.set_halign(Gtk.Align.START)
@@ -139,51 +127,44 @@ class TreeViewFilterWindow(Gtk.Window):
         entry_name = Gtk.Entry(text="", placeholder_text="One or all first names")
         entry_surname = Gtk.Entry(text="", placeholder_text="One or all family names")
 
-        grid.attach(check_employee, 1, 2, 1, 1)
-        grid.attach(label_id, 0, 3, 1, 1)
+        grid.attach(check_employee, 1, 0, 1, 1)
+        grid.attach(label_id, 0, 1, 1, 1)
         grid.attach_next_to(entry_id, label_id, Gtk.PositionType.RIGHT, 2, 1)
-        grid.attach(label_name,0, 4, 1, 1)
-        grid.attach_next_to(entry_name, label_name, Gtk.PositionType.RIGHT, 3, 1)
-        grid.attach(label_surname,0, 5, 1, 1)
-        grid.attach_next_to(entry_surname, label_surname, Gtk.PositionType.RIGHT, 3, 1)
+        grid.attach(label_name,0, 2, 1, 1)
+        grid.attach_next_to(entry_name, label_name, Gtk.PositionType.RIGHT, 2, 1)
+        grid.attach(label_surname,0, 3, 1, 1)
+        grid.attach_next_to(entry_surname, label_surname, Gtk.PositionType.RIGHT, 2, 1)
 
         self.entry_id = entry_id
         self.entry_name = entry_name
         self.entry_surname = entry_surname
         self.check_employee = check_employee
 
-        button_new_reg = Gtk.Button(label="Register Entry")
-        button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
-        grid.attach(button_new_reg, 0, 6, 1, 1)
+        panel_box.pack_start(grid, True, True, 0)
+        stack.add_titled(panel_box, "form", "First time registration")
 
-        stack.add_titled(grid, "form", "First time registration")
+        button_new_reg = Gtk.Button()
+        button_new_reg.set_image(Gtk.Image.new_from_file(button_image))
+        button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
+        button_new_reg.props.halign = Gtk.Align.END
+        button_new_reg.set_name("newregperson")
+        panel_box.pack_start(button_new_reg, False, False, 0)
 
     def setup_list_panel(self, stack):
         # Setting up the self.grid in which the elements are to be positioned
 
-        grid = Gtk.Grid()
-        grid.set_column_homogeneous(True)
-        grid.set_row_homogeneous(False)
-        grid.set_column_spacing(5)
-        grid.set_row_spacing(5)
-
-        button_osk = Gtk.Button(label="Keyboard")
-        button_osk.set_image(Gtk.Image.new_from_file(keyboard_image))
-        button_osk.set_always_show_image(True)
-        button_osk.set_image_position(Gtk.PositionType.TOP)
-
-        button_osk.connect("clicked", self.on_screen_keyboard)
-        grid.attach(button_osk, 0, 0, 1, 1)
-
-        label_entry_from_list = Gtk.Label(
-            label="Lookup and choose your name from the list below")
+        list_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        list_box.set_name("listbox")
+        label_entry_from_list = Gtk.Label(label="Lookup and choose your name from the list below")
         label_entry_from_list.set_halign(Gtk.Align.START)
-        grid.attach(label_entry_from_list, 0, 1, 8, 1)
+        label_entry_from_list.set_name("searchlabel")
+        list_box.pack_start(label_entry_from_list, False, False, 0)
 
         filter_text = Gtk.SearchEntry(text="", placeholder_text="Filter for list of people (down)")
         filter_text.connect("search-changed", self.on_filter_text_changed)
-        grid.attach(filter_text, 0, 2, 8, 1)
+        list_box.pack_start(filter_text, False, False, 0)
         self.filter_text = filter_text
+        filter_text.set_name("filtertext")
 
         # Creating the ListStore model
         self.people_liststore = Gtk.ListStore(str, str, str)
@@ -205,16 +186,20 @@ class TreeViewFilterWindow(Gtk.Window):
             if i == 0:
                 column.set_visible(False) #Hide ID
         self.treeview = treeview
-        reg_person = Gtk.Button(label="Register Entry")
-        reg_person.connect("clicked", self.on_reg_person_clicked)
         # setting up the layout, putting the treeview in a scrollwindow
         scrollable_treelist = Gtk.ScrolledWindow()
         scrollable_treelist.set_vexpand(True)
-        grid.attach(scrollable_treelist, 0, 3, 8, 10)
-        grid.attach_next_to(reg_person, scrollable_treelist, Gtk.PositionType.BOTTOM, 1, 1)
-
         scrollable_treelist.add(treeview)
-        stack.add_titled(grid, "list", "Select your name (once registered)")
+        list_box.pack_start(scrollable_treelist, True, True, 0)
+
+        reg_person = Gtk.Button()
+        reg_person.set_image(Gtk.Image.new_from_file(button_image))
+        reg_person.connect("clicked", self.on_reg_person_clicked)
+        reg_person.props.halign = Gtk.Align.END
+        reg_person.set_name("regperson")
+        list_box.pack_start(reg_person, False, False, 0)
+
+        stack.add_titled(list_box, "list", "Select your name\nonce registered")
 
     def people_filter_func(self, model, iter, data):
 
