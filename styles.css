@@ -4,7 +4,6 @@
   font-size: 16pt;
 }
 
-
 stackswitcher button {
   background-color: rgb(245, 245, 245);
   border-style: none;
@@ -36,12 +35,17 @@ treeview.view {
   padding: 10px;
 }
 
+treeview.view:hover {
+  background-color: rgb(220, 220, 220);;
+  color: black;
+}
+
 treeview.view:selected {
   background-color: rgb(0, 112,173);
   color: white;
 }
 
-#listbox {
+.box {
 
   margin-left: 350px;
   margin-right: 350px;
@@ -56,21 +60,6 @@ treeview.view:selected {
 #filtertext {
   margin-bottom: 1em;
 }
-#regperson {
-
-  border-style: none;
-}
-
-#newregperson {
-
-  border-style: none;
-}
-
-#panelbox {
-
-  margin-left: 350px;
-  margin-right: 350px;
-}
 
 #formlabel {
   margin-top:1.5em;
@@ -80,4 +69,21 @@ treeview.view:selected {
 
 checkbutton check {
   color: black;
+}
+
+.buttonregperson {
+  background-color: rgb(0, 112,173);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  margin: 4px 2px;
+  border-radius: 44px;
+  min-width: 200px;
+  min-height: 40px;
+}
+
+.buttonregperson label {
+  background-color: rgb(0, 112,173);
+  color: white;
+
 }

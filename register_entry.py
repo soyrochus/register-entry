@@ -15,7 +15,6 @@ logo_image = os.path.join(os.path.dirname(__file__), "logo.png")
 keyboard_image = os.path.join(os.path.dirname(__file__), "keyboard.png")
 icon_image = os.path.join(os.path.dirname(__file__), "entry.png")
 app_css = os.path.join(os.path.dirname(__file__), "styles.css")
-button_image = os.path.join(os.path.dirname(__file__), "register-entry-button.png")
 
 if len(sys.argv) == 2:
     basedir = sys.argv[1]
@@ -23,17 +22,12 @@ else:
     basedir = os.getcwd()
 
 settings = Gtk.Settings.get_default()
-#print(settings.get_property("gtk-font-name"))
 
 import platform
 if platform.system() == "Windows":  #osk -> onscreen keyboard or equivalent
     osk = "osk"
-    #settings.set_property("gtk-font-name", "Segoe UI 11")
 else:  # only on Linux and must be installed. Will fail on MacOSX
     osk = "onboard"
-    #settings.set_property("gtk-font-name", "Ubuntu 12")
-
-
 class ExtraDataDialog(Gtk.Dialog):
     def __init__(self, parent):
         super().__init__(title="Select Mask number (2 max.)", transient_for=parent, flags=0)
@@ -103,7 +97,7 @@ class TreeViewFilterWindow(Gtk.Window):
     def setup_form_panel(self, stack):
 
         panel_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        panel_box.set_name("panelbox")
+        panel_box.get_style_context().add_class("box")
         label_form = Gtk.Label(label="Register here with your ID, name and surname if you register for the "
                   "first time (check employee)")
         label_form.set_halign(Gtk.Align.START)
@@ -143,18 +137,18 @@ class TreeViewFilterWindow(Gtk.Window):
         panel_box.pack_start(grid, True, True, 0)
         stack.add_titled(panel_box, "form", "First time registration")
 
-        button_new_reg = Gtk.Button()
-        button_new_reg.set_image(Gtk.Image.new_from_file(button_image))
+        button_new_reg = Gtk.Button(label="Register Entry")
         button_new_reg.connect("clicked", self.on_new_entry_button_clicked)
         button_new_reg.props.halign = Gtk.Align.END
-        button_new_reg.set_name("newregperson")
+        button_new_reg.get_style_context().add_class("buttonregperson")
         panel_box.pack_start(button_new_reg, False, False, 0)
+
 
     def setup_list_panel(self, stack):
         # Setting up the self.grid in which the elements are to be positioned
 
         list_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        list_box.set_name("listbox")
+        list_box.get_style_context().add_class("box")
         label_entry_from_list = Gtk.Label(label="Lookup and choose your name from the list below")
         label_entry_from_list.set_halign(Gtk.Align.START)
         label_entry_from_list.set_name("searchlabel")
@@ -192,11 +186,10 @@ class TreeViewFilterWindow(Gtk.Window):
         scrollable_treelist.add(treeview)
         list_box.pack_start(scrollable_treelist, True, True, 0)
 
-        reg_person = Gtk.Button()
-        reg_person.set_image(Gtk.Image.new_from_file(button_image))
+        reg_person = Gtk.Button(label="Register Entry")
         reg_person.connect("clicked", self.on_reg_person_clicked)
         reg_person.props.halign = Gtk.Align.END
-        reg_person.set_name("regperson")
+        reg_person.get_style_context().add_class("buttonregperson")
         list_box.pack_start(reg_person, False, False, 0)
 
         stack.add_titled(list_box, "list", "Select your name\nonce registered")
